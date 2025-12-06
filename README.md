@@ -40,7 +40,7 @@ A modern, web-based tool for multi-criteria decision-making using the **Analytic
 1.  Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/ahp-decision-maker.git
+    git clone https://github.com/ayom04/ahp-decision-maker.git
     cd ahp-decision-maker
     ```
 
