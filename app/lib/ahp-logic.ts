@@ -18,11 +18,11 @@ const RI_TABLE: Record<number, number> = {
   15: 1.59,
 };
 
-export function generateMatrix(criteria: Criterion[]): ComparisonMatrix {
+export function generateMatrix(items: { id: string }[]): ComparisonMatrix {
   const matrix: ComparisonMatrix = {};
-  criteria.forEach((row) => {
+  items.forEach((row) => {
     matrix[row.id] = {};
-    criteria.forEach((col) => {
+    items.forEach((col) => {
       matrix[row.id][col.id] = row.id === col.id ? 1 : 0; // 0 indicates unfilled
     });
   });

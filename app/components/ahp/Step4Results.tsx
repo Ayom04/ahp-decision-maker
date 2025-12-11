@@ -59,14 +59,14 @@ export function Step4Results() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              CR = {cr.toFixed(2)} ({isConsistent ? "< 0.10" : ">= 0.10"})
+              CR = {cr.toFixed(4)} ({isConsistent ? "< 0.10" : ">= 0.10"})
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>λmax (Eigenvalue)</CardDescription>
-            <CardTitle className="text-2xl">{lambdaMax.toFixed(2)}</CardTitle>
+            <CardTitle className="text-2xl">{lambdaMax.toFixed(4)}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
@@ -77,7 +77,7 @@ export function Step4Results() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Consistency Index</CardDescription>
-            <CardTitle className="text-2xl">{ci.toFixed(2)}</CardTitle>
+            <CardTitle className="text-2xl">{ci.toFixed(4)}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
@@ -99,7 +99,7 @@ export function Step4Results() {
                 <div className="flex justify-between text-sm">
                   <span className="font-medium">{c.name}</span>
                   <span className="text-muted-foreground">
-                    {(weights[c.id] * 100).toFixed(1)}%
+                    {(weights[c.id] * 100).toFixed(4)}%
                   </span>
                 </div>
                 <ProgressBar value={weights[c.id] * 100} />
@@ -123,7 +123,7 @@ export function Step4Results() {
                 </div>
                 <div className="flex-1 font-medium">{c.name}</div>
                 <div className="font-bold">
-                  {(weights[c.id] * 100).toFixed(1)}%
+                  {(weights[c.id] * 100).toFixed(4)}%
                 </div>
               </div>
             ))}
@@ -200,7 +200,7 @@ export function Step4Results() {
                                 key={col.id}
                                 className="px-4 py-2 text-center"
                               >
-                                {matrix[row.id][col.id].toFixed(2)}
+                                {matrix[row.id][col.id].toFixed(4)}
                               </td>
                             ))}
                           </tr>
@@ -245,7 +245,7 @@ export function Step4Results() {
                                 key={col.id}
                                 className="px-4 py-2 text-center"
                               >
-                                {normalizedMatrix[row.id][col.id].toFixed(2)}
+                                {normalizedMatrix[row.id][col.id].toFixed(4)}
                               </td>
                             ))}
                           </tr>
