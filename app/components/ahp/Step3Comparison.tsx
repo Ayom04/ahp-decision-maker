@@ -12,7 +12,10 @@ import {
 import { ComparisonInput } from "@/app/components/ahp/ComparisonInput";
 import { ProgressBar } from "@/app/components/ui/ProgressBar";
 import { Tooltip } from "@/app/components/ui/Tooltip";
-import { calculateResults } from "@/app/lib/ahp-logic";
+import {
+  calculateResults,
+  calculateGlobalPriorities,
+} from "@/app/lib/ahp-logic";
 import { ComparisonMatrix, Criterion, Alternative } from "@/app/lib/types";
 
 const SAATY_SCALE = [
@@ -60,14 +63,20 @@ export function Step3Comparison() {
   const progress = (completedComparisons / totalComparisons) * 100;
 
   const handleCalculate = () => {
-    // Note: This only calculates criteria results for now in the reducer logic typically.
-    // Real implementation would need to Aggregate everything.
-    // For now, we just pass the criteria calculation to satisfy types,
-    // actual aggregation might naturally happen in Step 4 or here.
-    // Assuming existing calculateResults logic is for Criteria.
+    // 1. Calculate criteria priorities
     const results = calculateResults(matrix, criteria);
-    // You might want to calculate alternative scores here too if the reducer supports it,
-    // but the prompt asked for TABLE GENERATION specifically. Logic later.
+
+    // 2. Calculate alternative local priorities and aggregate to global priorities
+    const globalRankings = calculateGlobalPriorities(
+      results.weights,
+      alternativeMatrices,
+      alternatives,
+      criteria
+    );
+
+    // 3. Attach output
+    results.alternativeRankings = globalRankings;
+
     dispatch({ type: "CALCULATE_RESULTS", payload: results });
     dispatch({ type: "NEXT_STEP" });
   };

@@ -14,12 +14,13 @@ import { cn } from "@/app/lib/utils";
 
 export function Step4Results() {
   const { state, dispatch } = useAhp();
-  const { criteria, results, matrix } = state;
+  const { criteria, alternatives, results, matrix } = state;
   const [showMatrices, setShowMatrices] = useState(false);
 
   if (!results) return null;
 
-  const { weights, consistency, normalizedMatrix } = results;
+  const { weights, consistency, normalizedMatrix, alternativeRankings } =
+    results;
   const { cr, ci, lambdaMax, isConsistent } = consistency;
 
   // Sort criteria by weight descending
@@ -89,6 +90,62 @@ export function Step4Results() {
 
       {/* Weights and Ranking */}
       <div className="grid gap-6 md:grid-cols-2">
+        {alternativeRankings && (
+          <Card className="md:col-span-2 border-primary/50 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🏆 Final Rankings
+              </CardTitle>
+              <CardDescription>
+                Global priorities based on all criteria and pairwise comparisons
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[...alternatives]
+                .sort(
+                  (a, b) =>
+                    (alternativeRankings[b.id] || 0) -
+                    (alternativeRankings[a.id] || 0)
+                )
+                .map((alt, index) => (
+                  <div
+                    key={alt.id}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg border transition-all",
+                      index === 0
+                        ? "bg-primary/10 border-primary/50 shadow-sm"
+                        : "bg-muted/30 border-transparent hover:bg-muted/50"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm",
+                        index === 0
+                          ? "bg-primary text-primary-foreground scale-110"
+                          : "bg-muted-foreground/20 text-muted-foreground"
+                      )}
+                    >
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-lg">{alt.name}</div>
+                      {index === 0 && (
+                        <div className="text-xs text-primary font-medium mt-0.5">
+                          Best Alternative
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-xl">
+                        {(alternativeRankings[alt.id] * 100).toFixed(2)}%
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Criteria Weights</CardTitle>

@@ -31,10 +31,10 @@ export function generateMatrix(items: { id: string }[]): ComparisonMatrix {
 
 export function calculateResults(
   matrix: ComparisonMatrix,
-  criteria: Criterion[]
+  items: { id: string }[]
 ): ResultData {
-  const n = criteria.length;
-  const ids = criteria.map((c) => c.id);
+  const n = items.length;
+  const ids = items.map((c) => c.id);
 
   // 1. Column Sums
   const colSums: Record<string, number> = {};
@@ -98,4 +98,47 @@ export function calculateResults(
     },
     normalizedMatrix,
   };
+}
+
+export function calculateGlobalPriorities(
+  criteriaWeights: Record<string, number>,
+  alternativeMatrices: Record<string, ComparisonMatrix>,
+  alternatives: { id: string }[],
+  criteria: { id: string }[]
+): Record<string, number> {
+  // 1. Calculate local priorities for alternatives for EACH criterion
+  const localPriorities: Record<string, Record<string, number>> = {}; // criterionId -> { altId -> score }
+
+  criteria.forEach((crit) => {
+    const mat = alternativeMatrices[crit.id];
+    if (mat) {
+      const res = calculateResults(mat, itemsNameSafe(alternatives));
+      localPriorities[crit.id] = res.weights;
+    } else {
+      localPriorities[crit.id] = {};
+      alternatives.forEach(
+        (a) => (localPriorities[crit.id][a.id] = 1 / alternatives.length)
+      );
+    }
+  });
+
+  // 2. Aggregate
+  const globalScores: Record<string, number> = {};
+  alternatives.forEach((alt) => {
+    let score = 0;
+    criteria.forEach((crit) => {
+      const critWeight = criteriaWeights[crit.id] || 0;
+      const altLocalScore = localPriorities[crit.id]?.[alt.id] || 0;
+      score += critWeight * altLocalScore;
+    });
+    globalScores[alt.id] = score;
+  });
+
+  return globalScores;
+}
+
+// Helper to ensure types match for calculateResults if needed,
+// though structurally {id: string}[] is compatible.
+function itemsNameSafe(items: { id: string }[]): { id: string }[] {
+  return items;
 }

@@ -20,6 +20,7 @@ export interface ResultData {
     isConsistent: boolean;
   };
   normalizedMatrix: ComparisonMatrix;
+  alternativeRankings?: Record<string, number>;
 }
 
 export interface AhpState {

@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Slider } from "@/app/components/ui/Slider";
 import { Button } from "@/app/components/ui/Button";
+import { Input } from "@/app/components/ui/Input";
 import { cn } from "@/app/lib/utils";
 
 interface ComparisonInputProps {
@@ -24,6 +25,7 @@ export function ComparisonInput({
   onOpenChange,
 }: ComparisonInputProps) {
   const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const [inputValue, setInputValue] = useState("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Convert AHP value (1/9 to 9) to Slider value (-8 to 8)
@@ -39,6 +41,15 @@ export function ComparisonInput({
   };
 
   const sliderValue = getSliderValue(value);
+
+  // Sync value to input text when value changes externally
+  useEffect(() => {
+    if (value >= 1) {
+      setInputValue(value.toString());
+    } else {
+      setInputValue(`1/${Math.round(1 / value)}`);
+    }
+  }, [value]);
 
   const handleOpen = () => {
     if (triggerRef.current) {
@@ -76,6 +87,52 @@ export function ComparisonInput({
 
   const handlePortalClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+  };
+
+  const handleInputCommit = () => {
+    const trimmed = inputValue.trim();
+
+    // Check for fraction (e.g., "1/5")
+    if (trimmed.includes("/")) {
+      const parts = trimmed.split("/");
+      if (parts.length === 2) {
+        const num = parseFloat(parts[0]);
+        const den = parseFloat(parts[1]);
+        if (!isNaN(num) && !isNaN(den) && den !== 0) {
+          onChange(num / den);
+          return;
+        }
+      }
+    }
+
+    // Check for regular number
+    const num = parseFloat(trimmed);
+    if (!isNaN(num) && num > 0) {
+      if (num < 1 / 9 || num > 9) {
+        // Out of bounds - revert
+        if (value >= 1) {
+          setInputValue(value.toString());
+        } else {
+          setInputValue(`1/${Math.round(1 / value)}`);
+        }
+        return;
+      }
+      onChange(num);
+    } else {
+      // Revert to current value string if invalid
+      if (value >= 1) {
+        setInputValue(value.toString());
+      } else {
+        setInputValue(`1/${Math.round(1 / value)}`);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleInputCommit();
+      onOpenChange(false);
+    }
   };
 
   const getLabel = (val: number) => {
@@ -131,6 +188,17 @@ export function ComparisonInput({
             <div className="space-y-4">
               <div className="text-sm font-medium text-center min-h-[40px] flex items-center justify-center bg-zinc-950/50 rounded-md p-2">
                 {getLabel(sliderValue)}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onBlur={handleInputCommit}
+                  onKeyDown={handleKeyDown}
+                  className="h-8 bg-zinc-950/50 border-zinc-800 text-center font-mono"
+                  placeholder="e.g. 3 or 1/5"
+                />
               </div>
 
               <div className="flex items-center justify-between text-xs text-zinc-400 px-1">
